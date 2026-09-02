@@ -1,0 +1,29 @@
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { SplashScreen } from "@/components/SplashScreen";
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "UNI Employment Organization",
+  description: "Right Skills. Right Jobs. Better Futures. Connecting skilled people with the right employment opportunities.",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en" className={`${inter.variable}`}>
+      <body className={inter.className}>
+        <SplashScreen />
+        <main>{children}</main>
+      </body>
+    </html>
+  );
+}

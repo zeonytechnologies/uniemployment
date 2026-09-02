@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id            String   @id @default(uuid())
+  username      String   @unique
+  password_hash String
+  createdAt     DateTime @default(now())
+}
+
+model CandidateLead {
+  id              String   @id @default(uuid())
+  name            String
+  mobile          String
+  email           String?
+  qualification   String
+  experience      String?
+  preferredSector String?
+  source          String?  @default("website_popup")
+  status          String   @default("NEW") // NEW, CONTACTED, INTERESTED, PLACED, CLOSED
+  message         String?
+  resumeUrl       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ClientLead {
+  id                    String   @id @default(uuid())
+  companyName           String
+  contactPerson         String
+  mobile                String
+  email                 String?
+  requirementDescription String?
+  source                String?  @default("employer_form")
+  status                String   @default("NEW")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model Job {
+  id              String   @id @default(uuid())
+  title           String
+  company         String
+  location        String
+  industry        String
+  qualification   String
+  experience      String
+  salary          String?
+  vacancies       Int      @default(1)
+  jobType         String   @default("Full-time")
+  isOverseas      Boolean  @default(false)
+  description     String
+  responsibilities String?
+  requirements    String?
+  benefits        String?
+  status          String   @default("ACTIVE") // DRAFT, ACTIVE, CLOSED, ARCHIVED
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Placement {
+  id             String   @id @default(uuid())
+  candidateName  String
+  qualification  String
+  position       String
+  company        String
+  industry       String
+  location       String
+  experience     String?
+  placementDate  DateTime @default(now())
+  status         String   @default("Successfully Placed")
+  isPublic       Boolean  @default(true)
+  imageUrl       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Client {
+  id             String   @id @default(uuid())
+  companyName    String
+  logoUrl        String?
+  industry       String
+  location       String
+  description    String?
+  partnerSince   String?
+  status         String   @default("Active Partner")
+  isFeatured     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Industry {
+  id             String   @id @default(uuid())
+  name           String   @unique
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+}
