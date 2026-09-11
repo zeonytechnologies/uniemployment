@@ -19,7 +19,8 @@
   --radius-xl: 16px;
   --radius-2xl: 20px;
 
-  --font-inter: 'Inter', sans-serif;
+  --font-inter: var(--font-inter, 'Inter', sans-serif);
+  --font-heading: var(--font-playfair, 'Playfair Display', serif);
 }
 
 * {
@@ -53,6 +54,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   color: var(--navy);
+  font-family: var(--font-heading);
   font-weight: 700;
   line-height: 1.2;
 }

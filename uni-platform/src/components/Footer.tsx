@@ -54,8 +54,11 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="footer-bottom">
+        <div className="footer-bottom" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <p>© 2026 UNI Employment Organization. All Rights Reserved.</p>
+          <Link href="/admin/dashboard" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', textDecoration: 'none' }}>
+            Admin Portal Access
+          </Link>
         </div>
       </div>
     </footer>

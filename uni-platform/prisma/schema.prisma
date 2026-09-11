@@ -3,15 +3,20 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Admin {
   id            String   @id @default(uuid())
-  username      String   @unique
+  email         String   @unique
+  username      String?  @unique
+  name          String   @default("Admin")
   password_hash String
+  role          String   @default("ADMIN")
   createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model CandidateLead {
@@ -23,7 +28,7 @@ model CandidateLead {
   experience      String?
   preferredSector String?
   source          String?  @default("website_popup")
-  status          String   @default("NEW") // NEW, CONTACTED, INTERESTED, PLACED, CLOSED
+  status          String   @default("NEW") // NEW, CONTACTED, INTERESTED, SHORTLISTED, PLACED, CLOSED
   message         String?
   resumeUrl       String?
   createdAt       DateTime @default(now())
@@ -38,30 +43,48 @@ model ClientLead {
   email                 String?
   requirementDescription String?
   source                String?  @default("employer_form")
-  status                String   @default("NEW")
+  status                String   @default("NEW") // NEW, CONTACTED, IN_PROGRESS, CLOSED
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 }
 
 model Job {
-  id              String   @id @default(uuid())
-  title           String
-  company         String
-  location        String
-  industry        String
-  qualification   String
-  experience      String
-  salary          String?
-  vacancies       Int      @default(1)
-  jobType         String   @default("Full-time")
-  isOverseas      Boolean  @default(false)
-  description     String
+  id               String           @id @default(uuid())
+  title            String
+  company          String
+  companyLogoUrl   String?
+  location         String
+  industry         String
+  qualification    String
+  experience       String
+  salary           String?
+  vacancies        Int              @default(1)
+  jobType          String           @default("Full-time")
+  isOverseas       Boolean          @default(false)
+  description      String
   responsibilities String?
-  requirements    String?
-  benefits        String?
-  status          String   @default("ACTIVE") // DRAFT, ACTIVE, CLOSED, ARCHIVED
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  requirements     String?
+  benefits         String?
+  status           String           @default("ACTIVE") // DRAFT, ACTIVE, CLOSED, ARCHIVED
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  applications     JobApplication[]
+}
+
+model JobApplication {
+  id            String   @id @default(uuid())
+  jobId         String
+  job           Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidateName String
+  email         String
+  phone         String
+  qualification String?
+  experience    String?
+  resumeUrl     String?
+  coverNote     String?
+  status        String   @default("PENDING") // PENDING, REVIEWED, SHORTLISTED, REJECTED, HIRED
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Placement {
@@ -70,8 +93,10 @@ model Placement {
   qualification  String
   position       String
   company        String
+  companyLogoUrl String?
   industry       String
   location       String
+  salaryPackage  String?
   experience     String?
   placementDate  DateTime @default(now())
   status         String   @default("Successfully Placed")
@@ -82,22 +107,23 @@ model Placement {
 }
 
 model Client {
-  id             String   @id @default(uuid())
-  companyName    String
-  logoUrl        String?
-  industry       String
-  location       String
-  description    String?
-  partnerSince   String?
-  status         String   @default("Active Partner")
-  isFeatured     Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id           String   @id @default(uuid())
+  companyName  String
+  logoUrl      String?
+  industry     String
+  location     String
+  description  String?
+  partnerSince String?
+  websiteUrl   String?
+  status       String   @default("Active Partner")
+  isFeatured   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Industry {
-  id             String   @id @default(uuid())
-  name           String   @unique
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
+  id        String   @id @default(uuid())
+  name      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
 }
