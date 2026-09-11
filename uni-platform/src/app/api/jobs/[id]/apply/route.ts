@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { sendNotificationEmail } from '@/lib/email';
 
 export async function POST(
   request: Request,
@@ -48,6 +49,32 @@ export async function POST(
         status: 'PENDING'
       }
     });
+
+    // Send Admin Notification
+    const adminHtml = `
+      <h3>New Job Application Received</h3>
+      <p><strong>Job Applied:</strong> ${job.title} at ${job.company}</p>
+      <p><strong>Candidate Name:</strong> ${application.candidateName}</p>
+      <p><strong>Email:</strong> ${application.email}</p>
+      <p><strong>Phone:</strong> ${application.phone}</p>
+      <p><strong>Qualification:</strong> ${application.qualification || 'N/A'}</p>
+      <p><strong>Experience:</strong> ${application.experience || 'N/A'}</p>
+      ${application.resumeUrl ? `<p><strong>Resume:</strong> <a href="${application.resumeUrl}">View Resume</a></p>` : ''}
+      ${application.coverNote ? `<p><strong>Cover Note:</strong> ${application.coverNote}</p>` : ''}
+    `;
+    sendNotificationEmail(`New Application: ${job.title}`, adminHtml).catch(console.error);
+
+    // Send Candidate Confirmation
+    const candidateHtml = `
+      <h3>Application Received - UniEmployment</h3>
+      <p>Dear ${application.candidateName},</p>
+      <p>Thank you for applying for the <strong>${job.title}</strong> position at <strong>${job.company}</strong> through UniEmployment.</p>
+      <p>We have successfully received your application. Our recruitment team will review your profile, and if your qualifications match the requirements, we will contact you for the next steps.</p>
+      <br/>
+      <p>Best Regards,</p>
+      <p><strong>UniEmployment Team</strong></p>
+    `;
+    sendNotificationEmail(`Application Received: ${job.title}`, candidateHtml, application.email).catch(console.error);
 
     return NextResponse.json(
       {
