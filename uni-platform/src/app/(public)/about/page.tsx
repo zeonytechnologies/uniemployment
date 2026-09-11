@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
+import CoreValuesSection from '@/components/CoreValuesSection';
 
 export const metadata = {
   title: 'About Us | UNI Employment Organization',
@@ -22,12 +23,12 @@ export default function AboutPage() {
       <section className="about-content" style={{ padding: '80px 0', backgroundColor: 'var(--white)' }}>
         <div className="container grid grid-2" style={{ gap: '64px', alignItems: 'center' }}>
           <div>
-            <h2 className="text-navy" style={{ marginBottom: '24px' }}>Our Mission</h2>
+            <h2 className="text-navy" style={{ marginBottom: '24px' }}>Our Mission: Nation Building</h2>
             <p className="text-muted" style={{ marginBottom: '24px', fontSize: '18px' }}>
-              At UNI Employment Organization, our primary focus is to reduce unemployment by creating a reliable bridge between skilled individuals and businesses looking for manpower.
+              At UNI Employment Organization, we do not just provide jobs; we are deeply committed to a patriotic duty of resolving the Indian unemployment crisis. We believe that empowering the youth of India is the most direct path to a stronger, self-reliant nation (Atmanirbhar Bharat).
             </p>
             <p className="text-muted" style={{ fontSize: '18px' }}>
-              We work with candidates across all levels - from fresh graduates (Degree, Diploma, ITI) to experienced professionals, skilled, and semi-skilled workers. Our goal is to ensure that everyone has access to the right opportunities to build a better future.
+              By bridging the critical gap between raw Indian talent and industrial needs, we are unlocking the economic potential of our people. From fresh graduates and ITI professionals to skilled workforce in rural and urban areas, our mission is to ensure that every capable Indian citizen contributes to and benefits from the nation's rapid growth.
             </p>
           </div>
           <div style={{ backgroundColor: 'var(--light-bg)', padding: '40px', borderRadius: 'var(--radius-xl)' }}>
@@ -54,24 +55,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="about-values" style={{ padding: '80px 0', backgroundColor: 'var(--light-bg)' }}>
-        <div className="container">
-          <h2 className="text-navy" style={{ textAlign: 'center', marginBottom: '48px' }}>Our Core Values</h2>
-          <div className="grid grid-4">
-            {['Opportunity', 'Skill', 'Trust', 'Growth'].map((value, idx) => (
-              <div key={idx} style={{ backgroundColor: 'var(--white)', padding: '32px 24px', borderRadius: 'var(--radius-lg)', textAlign: 'center', boxShadow: 'var(--shadow-sm)' }}>
-                <div style={{ width: '48px', height: '48px', backgroundColor: 'rgba(244, 123, 22, 0.1)', color: 'var(--orange)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto', fontSize: '20px', fontWeight: 700 }}>
-                  0{idx + 1}
-                </div>
-                <h4 className="text-navy" style={{ marginBottom: '12px', fontSize: '18px' }}>{value}</h4>
-                <p className="text-muted" style={{ fontSize: '14px' }}>
-                  Committed to fostering {value.toLowerCase()} for everyone involved in our ecosystem.
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <CoreValuesSection />
 
       <section className="about-cta" style={{ padding: '80px 0', backgroundColor: 'var(--white)', textAlign: 'center' }}>
         <div className="container">
