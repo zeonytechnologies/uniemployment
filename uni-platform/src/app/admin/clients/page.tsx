@@ -13,8 +13,11 @@ import {
   MapPin, 
   CheckCircle2, 
   X, 
-  Star 
+  Star,
+  UploadCloud,
+  Loader2
 } from 'lucide-react';
+import { uploadFileToSupabase, deleteFileFromSupabase } from '@/lib/supabase-client';
 
 interface ClientItem {
   id: string;
@@ -39,6 +42,7 @@ export default function AdminClientsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<ClientItem | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [modalError, setModalError] = useState('');
 
   // Form
@@ -136,13 +140,17 @@ export default function AdminClientsPage() {
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to remove "${name}" from partner companies?`)) {
+  const handleDelete = async (client: ClientItem) => {
+    if (!confirm(`Are you sure you want to remove "${client.companyName}" from partner companies?`)) {
       return;
     }
 
     try {
-      const res = await fetch(`/api/clients/${id}`, { method: 'DELETE' });
+      // First, try deleting the logo from Supabase Storage
+      if (client.logoUrl) await deleteFileFromSupabase(client.logoUrl);
+
+      // Then delete the database record
+      const res = await fetch(`/api/clients/${client.id}`, { method: 'DELETE' });
       if (res.ok) {
         fetchClients();
       }
@@ -343,7 +351,7 @@ export default function AdminClientsPage() {
                       <Edit3 size={15} />
                     </button>
                     <button
-                      onClick={() => handleDelete(client.id, client.companyName)}
+                      onClick={() => handleDelete(client)}
                       style={{ padding: '6px', border: '1px solid rgba(220, 53, 69, 0.3)', background: 'rgba(220, 53, 69, 0.08)', color: 'var(--danger)', borderRadius: '6px', cursor: 'pointer' }}
                       title="Delete client"
                     >
@@ -437,26 +445,55 @@ export default function AdminClientsPage() {
 
                 <div style={{ gridColumn: '1 / -1' }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--navy)', marginBottom: '6px' }}>
-                    Company Logo URL
+                    Company Logo
                   </label>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <input
-                      type="url"
-                      placeholder="https://images.unsplash.com/... or company logo link"
-                      value={formData.logoUrl}
-                      onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
-                      style={{ flex: 1, padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '14px' }}
+                      type="file"
+                      accept="image/*"
+                      id="clientLogoUpload"
+                      style={{ display: 'none' }}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setUploadingLogo(true);
+                          setModalError('');
+                          const { url, error } = await uploadFileToSupabase(file);
+                          if (error) {
+                            setModalError('Failed to upload logo.');
+                          } else if (url) {
+                            setFormData({ ...formData, logoUrl: url });
+                          }
+                          setUploadingLogo(false);
+                        }
+                      }}
                     />
+                    <label 
+                      htmlFor="clientLogoUpload" 
+                      style={{ 
+                        display: 'flex', alignItems: 'center', gap: '8px', 
+                        padding: '8px 16px', borderRadius: '8px', 
+                        backgroundColor: 'var(--light-bg)', border: '1px solid var(--border)',
+                        cursor: uploadingLogo ? 'not-allowed' : 'pointer',
+                        fontSize: '13px', fontWeight: 600, color: 'var(--navy)'
+                      }}
+                    >
+                      {uploadingLogo ? <Loader2 size={16} className="animate-spin" /> : <UploadCloud size={16} />}
+                      {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
+                    </label>
                     {formData.logoUrl && (
-                      <div style={{ width: '40px', height: '40px', borderRadius: '6px', border: '1px solid var(--border)', overflow: 'hidden', flexShrink: 0 }}>
-                        <img
-                          src={formData.logoUrl}
-                          alt="Preview"
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                          onError={(e) => {
-                            (e.target as HTMLElement).style.display = 'none';
-                          }}
-                        />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '6px', border: '1px solid var(--border)', overflow: 'hidden', flexShrink: 0 }}>
+                          <img
+                            src={formData.logoUrl}
+                            alt="Preview"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        </div>
+                        <button type="button" onClick={() => setFormData({ ...formData, logoUrl: '' })} style={{ color: 'var(--danger)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
                       </div>
                     )}
                   </div>

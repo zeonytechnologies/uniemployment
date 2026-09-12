@@ -48,6 +48,7 @@ interface JobItem {
 
 export default function AdminJobsPage() {
   const [jobs, setJobs] = useState<JobItem[]>([]);
+  const [clients, setClients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -78,23 +79,33 @@ export default function AdminJobsPage() {
     status: 'ACTIVE'
   });
 
-  const fetchJobs = async () => {
+  const fetchJobsAndClients = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/jobs?admin=true');
-      if (res.ok) {
-        const data = await res.json();
+      const [jobsRes, clientsRes] = await Promise.all([
+        fetch('/api/jobs?admin=true'),
+        fetch('/api/clients?admin=true')
+      ]);
+      
+      if (jobsRes.ok) {
+        const data = await jobsRes.json();
         setJobs(data.jobs || []);
       }
+      
+      if (clientsRes.ok) {
+        const data = await clientsRes.json();
+        // Only get active partners
+        setClients((data.clients || []).filter((c: any) => c.status === 'Active Partner'));
+      }
     } catch (err) {
-      console.error('Error fetching jobs:', err);
+      console.error('Error fetching data:', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchJobs();
+    fetchJobsAndClients();
   }, []);
 
   const openCreateModal = () => {
@@ -167,7 +178,7 @@ export default function AdminJobsPage() {
       }
 
       setIsModalOpen(false);
-      fetchJobs();
+      fetchJobsAndClients();
     } catch (err: any) {
       setModalError(err.message);
     } finally {
@@ -183,7 +194,7 @@ export default function AdminJobsPage() {
     try {
       const res = await fetch(`/api/jobs/${id}`, { method: 'DELETE' });
       if (res.ok) {
-        fetchJobs();
+        fetchJobsAndClients();
       } else {
         alert('Failed to delete job');
       }
@@ -201,7 +212,7 @@ export default function AdminJobsPage() {
         body: JSON.stringify({ status: newStatus })
       });
       if (res.ok) {
-        fetchJobs();
+        fetchJobsAndClients();
       }
     } catch (err) {
       console.error('Error toggling job status:', err);
@@ -588,6 +599,38 @@ export default function AdminJobsPage() {
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '14px' }}
                   />
+                </div>
+
+                {/* Select Existing Partner Client */}
+                <div style={{ gridColumn: '1 / -1', padding: '16px', backgroundColor: 'var(--light-bg)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--navy)', marginBottom: '6px' }}>
+                    Select Partner Client (Optional)
+                  </label>
+                  <select
+                    onChange={(e) => {
+                      const client = clients.find(c => c.id === e.target.value);
+                      if (client) {
+                        setFormData({
+                          ...formData,
+                          company: client.companyName,
+                          companyLogoUrl: client.logoUrl || '',
+                          location: client.location,
+                          industry: client.industry
+                        });
+                      }
+                    }}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '14px', backgroundColor: 'var(--white)' }}
+                  >
+                    <option value="">-- Choose an existing partner client to auto-fill details --</option>
+                    {clients.map(client => (
+                      <option key={client.id} value={client.id}>
+                        {client.companyName} ({client.industry})
+                      </option>
+                    ))}
+                  </select>
+                  <p style={{ fontSize: '11px', color: 'var(--muted-text)', marginTop: '6px' }}>
+                    Selecting a client will automatically fill the Company Name, Logo URL, Location, and Industry below. You can still edit them manually.
+                  </p>
                 </div>
 
                 {/* Company Name */}

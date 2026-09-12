@@ -16,8 +16,10 @@ import {
   EyeOff, 
   CheckCircle2, 
   X,
-  IndianRupee
+  UploadCloud,
+  Loader2
 } from 'lucide-react';
+import { uploadFileToSupabase, deleteFileFromSupabase } from '@/lib/supabase-client';
 
 interface PlacementItem {
   id: string;
@@ -46,6 +48,8 @@ export default function AdminPlacementsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPlacement, setEditingPlacement] = useState<PlacementItem | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [modalError, setModalError] = useState('');
 
   // Form data
@@ -155,13 +159,18 @@ export default function AdminPlacementsPage() {
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete the placement record for "${name}"?`)) {
+  const handleDelete = async (pl: PlacementItem) => {
+    if (!confirm(`Are you sure you want to delete the placement record for "${pl.candidateName}"?`)) {
       return;
     }
 
     try {
-      const res = await fetch(`/api/placements/${id}`, { method: 'DELETE' });
+      // First, try deleting the images from Supabase Storage
+      if (pl.imageUrl) await deleteFileFromSupabase(pl.imageUrl);
+      if (pl.companyLogoUrl) await deleteFileFromSupabase(pl.companyLogoUrl);
+
+      // Then delete the database record
+      const res = await fetch(`/api/placements/${pl.id}`, { method: 'DELETE' });
       if (res.ok) {
         fetchPlacements();
       }
@@ -400,7 +409,7 @@ export default function AdminPlacementsPage() {
                             <Edit3 size={15} />
                           </button>
                           <button
-                            onClick={() => handleDelete(pl.id, pl.candidateName)}
+                            onClick={() => handleDelete(pl)}
                             title="Delete placement"
                             style={{ padding: '6px', border: '1px solid rgba(220, 53, 69, 0.3)', background: 'rgba(220, 53, 69, 0.08)', color: 'var(--danger)', borderRadius: '6px', cursor: 'pointer' }}
                           >
@@ -539,32 +548,95 @@ export default function AdminPlacementsPage() {
 
                 <div style={{ gridColumn: '1 / -1' }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--navy)', marginBottom: '6px' }}>
-                    Company Logo URL
+                    Company Logo
                   </label>
-                  <input
-                    type="url"
-                    placeholder="https://example.com/company-logo.png"
-                    value={formData.companyLogoUrl}
-                    onChange={(e) => setFormData({ ...formData, companyLogoUrl: e.target.value })}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '14px' }}
-                  />
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      id="companyLogoUpload"
+                      style={{ display: 'none' }}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setUploadingLogo(true);
+                          setModalError('');
+                          const { url, error } = await uploadFileToSupabase(file);
+                          if (error) {
+                            setModalError('Failed to upload logo.');
+                          } else if (url) {
+                            setFormData({ ...formData, companyLogoUrl: url });
+                          }
+                          setUploadingLogo(false);
+                        }
+                      }}
+                    />
+                    <label 
+                      htmlFor="companyLogoUpload" 
+                      style={{ 
+                        display: 'flex', alignItems: 'center', gap: '8px', 
+                        padding: '8px 16px', borderRadius: '8px', 
+                        backgroundColor: 'var(--light-bg)', border: '1px solid var(--border)',
+                        cursor: uploadingLogo ? 'not-allowed' : 'pointer',
+                        fontSize: '13px', fontWeight: 600, color: 'var(--navy)'
+                      }}
+                    >
+                      {uploadingLogo ? <Loader2 size={16} className="animate-spin" /> : <UploadCloud size={16} />}
+                      {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
+                    </label>
+                    {formData.companyLogoUrl && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <img src={formData.companyLogoUrl} alt="Logo" style={{ height: '32px', borderRadius: '4px' }} />
+                        <button type="button" onClick={() => setFormData({ ...formData, companyLogoUrl: '' })} style={{ color: 'var(--danger)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div style={{ gridColumn: '1 / -1' }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--navy)', marginBottom: '6px' }}>
-                    Candidate Photo URL
+                    Candidate Photo
                   </label>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <input
-                      type="url"
-                      placeholder="https://example.com/photo.jpg"
-                      value={formData.imageUrl}
-                      onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                      style={{ flex: 1, padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '14px' }}
+                      type="file"
+                      accept="image/*"
+                      id="candidatePhotoUpload"
+                      style={{ display: 'none' }}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setUploadingPhoto(true);
+                          setModalError('');
+                          const { url, error } = await uploadFileToSupabase(file);
+                          if (error) {
+                            setModalError('Failed to upload photo.');
+                          } else if (url) {
+                            setFormData({ ...formData, imageUrl: url });
+                          }
+                          setUploadingPhoto(false);
+                        }
+                      }}
                     />
+                    <label 
+                      htmlFor="candidatePhotoUpload" 
+                      style={{ 
+                        display: 'flex', alignItems: 'center', gap: '8px', 
+                        padding: '8px 16px', borderRadius: '8px', 
+                        backgroundColor: 'var(--light-bg)', border: '1px solid var(--border)',
+                        cursor: uploadingPhoto ? 'not-allowed' : 'pointer',
+                        fontSize: '13px', fontWeight: 600, color: 'var(--navy)'
+                      }}
+                    >
+                      {uploadingPhoto ? <Loader2 size={16} className="animate-spin" /> : <UploadCloud size={16} />}
+                      {uploadingPhoto ? 'Uploading...' : 'Upload Photo'}
+                    </label>
                     {formData.imageUrl && (
-                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--border)', flexShrink: 0 }}>
-                        <img src={formData.imageUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                          <img src={formData.imageUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                        <button type="button" onClick={() => setFormData({ ...formData, imageUrl: '' })} style={{ color: 'var(--danger)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
                       </div>
                     )}
                   </div>

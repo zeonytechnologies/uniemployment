@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import { Button } from './ui/Button';
 
 export function Navbar() {
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -41,13 +43,20 @@ export function Navbar() {
         {/* Desktop Nav */}
         <nav className="desktop-nav">
           <ul className="nav-list">
-            {navLinks.map((link) => (
-              <li key={link.name}>
-                <Link href={link.href} className="nav-link">
-                  {link.name}
-                </Link>
-              </li>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href || (pathname?.startsWith(link.href) && link.href !== '/');
+              return (
+                <li key={link.name}>
+                  <Link 
+                    href={link.href} 
+                    className="nav-link"
+                    style={isActive ? { color: 'var(--orange)' } : {}}
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </nav>
 
@@ -75,17 +84,21 @@ export function Navbar() {
       {isMobileMenuOpen && (
         <div className="mobile-nav">
           <ul className="mobile-nav-list">
-            {navLinks.map((link) => (
-              <li key={link.name}>
-                <Link 
-                  href={link.href} 
-                  className="mobile-nav-link"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {link.name}
-                </Link>
-              </li>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href || (pathname?.startsWith(link.href) && link.href !== '/');
+              return (
+                <li key={link.name}>
+                  <Link 
+                    href={link.href} 
+                    className="mobile-nav-link"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    style={isActive ? { color: 'var(--orange)' } : {}}
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
           <div className="mobile-cta">
             <Link href="/jobs" onClick={() => setIsMobileMenuOpen(false)}>
