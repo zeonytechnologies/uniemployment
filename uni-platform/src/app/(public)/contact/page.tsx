@@ -51,8 +51,8 @@ export default function ContactPage() {
                   <h3 className="text-orange" style={{ marginBottom: '8px' }}>JOB SEEKERS</h3>
                   <p className="text-muted">Need help with your application or looking for specific opportunities?</p>
                   <div style={{ marginTop: '16px' }}>
-                    <p><strong>Email:</strong> candidates@uniemployment.com</p>
-                    <p><strong>Phone:</strong> +91 00000 00001</p>
+                    <p><strong>Email:</strong> info@uniemployment.in</p>
+                    <p><strong>Phone:</strong> +91 7981294264, +91 7702270790</p>
                   </div>
                 </CardContent>
               </Card>
@@ -62,8 +62,8 @@ export default function ContactPage() {
                   <h3 className="text-orange" style={{ marginBottom: '8px' }}>EMPLOYERS</h3>
                   <p className="text-muted">Discuss your manpower requirements and recruitment strategies.</p>
                   <div style={{ marginTop: '16px' }}>
-                    <p><strong>Email:</strong> corporate@uniemployment.com</p>
-                    <p><strong>Phone:</strong> +91 00000 00002</p>
+                    <p><strong>Email:</strong> info@uniemployment.in</p>
+                    <p><strong>Phone:</strong> +91 7981294264, +91 7702270790</p>
                   </div>
                 </CardContent>
               </Card>
@@ -73,9 +73,9 @@ export default function ContactPage() {
                   <h3 className="text-navy" style={{ marginBottom: '8px' }}>GENERAL ENQUIRY</h3>
                   <p className="text-muted">For all other questions or partnership inquiries.</p>
                   <div style={{ marginTop: '16px' }}>
-                    <p><strong>Email:</strong> info@uniemployment.com</p>
-                    <p><strong>Phone:</strong> +91 00000 00000</p>
-                    <p><strong>WhatsApp:</strong> +91 00000 00000</p>
+                    <p><strong>Email:</strong> info@uniemployment.in</p>
+                    <p><strong>Phone:</strong> +91 7981294264, +91 7702270790</p>
+                    <p><strong>WhatsApp:</strong> +91 7981294264, +91 7702270790</p>
                     <p style={{ marginTop: '12px' }}><strong>Office:</strong> Tamil Nadu, India</p>
                     <p><strong>Business Hours:</strong> Monday - Saturday, 9:00 AM - 6:00 PM</p>
                   </div>

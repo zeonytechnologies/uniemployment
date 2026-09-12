@@ -47,15 +47,18 @@ export function Footer() {
 
           <div className="footer-contact">
             <h4 className="footer-heading text-orange">Contact</h4>
-            <p>Phone: +91 00000 00000</p>
-            <p>Email: info@uniemployment.com</p>
+            <p>Phone: +91 7981294264, +91 7702270790</p>
+            <p>Email: info@uniemployment.in</p>
             <p>Address: Tamil Nadu, India</p>
-            <p>WhatsApp: +91 00000 00000</p>
+            <p>WhatsApp: +91 7981294264, +91 7702270790</p>
           </div>
         </div>
 
         <div className="footer-bottom" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <p>© 2026 UNI Employment Organization. All Rights Reserved.</p>
+          <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)' }}>
+            Powered by <a href="https://www.zeonytechnologies.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--orange)', textDecoration: 'none' }}>Zeony Technologies</a>
+          </p>
           <Link href="/admin/dashboard" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', textDecoration: 'none' }}>
             Admin Portal Access
           </Link>
